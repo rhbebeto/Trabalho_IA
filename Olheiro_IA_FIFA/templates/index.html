@@ -4,29 +4,104 @@
     <meta charset="UTF-8">
     <title>Olheiro de IA - FIFA</title>
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; background-color: #f4f4f9; color: #333; }
-        h1 { color: #0056b3; }
-        form { display: flex; flex-direction: column; gap: 15px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        label { font-weight: bold; }
-        input, button { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
-        button { background-color: #007bff; color: white; cursor: pointer; border: none; }
-        button:hover { background-color: #0056b3; }
+        body { font-family: sans-serif; max-width: 900px; margin: auto; padding: 20px; background-color: #f4f4f9; color: #333; }
+        h1 { color: #0056b3; text-align: center; }
+        form { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .form-section { margin-bottom: 20px; }
+        .form-section h3 { border-bottom: 2px solid #007bff; padding-bottom: 5px; margin-bottom: 15px; color: #007bff;}
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input, select { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
+        .full-width { grid-column: 1 / -1; }
+        button { background-color: #28a745; color: white; cursor: pointer; border: none; font-weight: bold; padding: 12px; font-size: 18px; }
+        button:hover { background-color: #218838; }
     </style>
 </head>
 <body>
-    <h1>🔎 Olheiro de IA para FIFA</h1>
-    <p>Preencha os critérios abaixo para encontrar as melhores jovens promessas para seu time no Modo Carreira.</p>
+    <h1>🔎 Olheiro de IA - Busca Detalhada</h1>
+    
     <form action="/buscar" method="post">
-        <label for="orcamento">Orçamento Máximo (€):</label>
-        <input type="number" id="orcamento" name="orcamento" value="5000000" required>
+        <div class="form-section">
+            <h3>Busca por Nome</h3>
+            <div class="form-group full-width">
+                <label for="nome_jogador">Nome do Jogador:</label>
+                <input type="text" id="nome_jogador" name="nome_jogador" placeholder="Ex: L. Messi">
+            </div>
+        </div>
 
-        <label for="idade_max">Idade Máxima:</label>
-        <input type="number" id="idade_max" name="idade_max" value="21" required>
+        <div class="form-section">
+            <h3>Atributos Principais</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Idade:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" name="idade_min" placeholder="Mín." value="16">
+                        <input type="number" name="idade_max" placeholder="Máx." value="40">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Overall:</label>
+                     <div style="display: flex; gap: 10px;">
+                        <input type="number" name="overall_min" placeholder="Mín." value="40">
+                        <input type="number" name="overall_max" placeholder="Máx." value="99">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Potencial:</label>
+                     <div style="display: flex; gap: 10px;">
+                        <input type="number" name="potential_min" placeholder="Mín." value="40">
+                        <input type="number" name="potential_max" placeholder="Máx." value="99">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Filtros de Contrato</h3>
+             <div class="form-grid">
+                <div class="form-group">
+                    <label>Valor de Mercado (€):</label>
+                     <div style="display: flex; gap: 10px;">
+                        <input type="number" name="valor_min" placeholder="Mín." value="0">
+                        <input type="number" name="valor_max" placeholder="Máx." value="300000000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="salario_max">Salário Máximo Semanal (€):</label>
+                    <input type="number" id="salario_max" name="salario_max" value="700000">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Filtros de Localização e Posição</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="pais">País:</label>
+                    <select id="pais" name="pais">
+                        <option value="any">Qualquer</option>
+                        {% for p in paises %}<option value="{{ p }}">{{ p }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="liga">Liga:</label>
+                    <select id="liga" name="liga">
+                        <option value="any">Qualquer</option>
+                        {% for l in ligas %}<option value="{{ l }}">{{ l }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label for="posicao">Posição Específica:</label>
+                    <select id="posicao" name="posicao">
+                        <option value="any">Qualquer</pre>
+                        {% for pos in posicoes %}<option value="{{ pos }}">{{ pos }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
         
-        <label for="potencial_min">Potencial Mínimo:</label>
-        <input type="number" id="potencial_min" name="potencial_min" value="85" required>
-
-        <button type="submit">Buscar Jogadores</button>
+        <button type="submit" class="full-width">Buscar Jogadores</button>
     </form>
 </body>
 </html>
