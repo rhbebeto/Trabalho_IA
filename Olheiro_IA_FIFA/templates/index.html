@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Olheiro de IA - FIFA</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; background-color: #f4f4f9; color: #333; }
+        h1 { color: #0056b3; }
+        form { display: flex; flex-direction: column; gap: 15px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        label { font-weight: bold; }
+        input, button { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background-color: #007bff; color: white; cursor: pointer; border: none; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🔎 Olheiro de IA para FIFA</h1>
+    <p>Preencha os critérios abaixo para encontrar as melhores jovens promessas para seu time no Modo Carreira.</p>
+    <form action="/buscar" method="post">
+        <label for="orcamento">Orçamento Máximo (€):</label>
+        <input type="number" id="orcamento" name="orcamento" value="5000000" required>
+
+        <label for="idade_max">Idade Máxima:</label>
+        <input type="number" id="idade_max" name="idade_max" value="21" required>
+        
+        <label for="potencial_min">Potencial Mínimo:</label>
+        <input type="number" id="potencial_min" name="potencial_min" value="85" required>
+
+        <button type="submit">Buscar Jogadores</button>
+    </form>
+</body>
+</html>

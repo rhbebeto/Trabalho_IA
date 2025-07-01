@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados da Busca</title>
+     <style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; background-color: #f4f4f9; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        tr:hover { background-color: #ddd; }
+        a { display: inline-block; margin-top: 20px; text-decoration: none; background-color: #28a745; color: white; padding: 10px 15px; border-radius: 5px; }
+        a:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+    <h1>✔️ Resultados Encontrados</h1>
+    <p>Com um orçamento de até <strong>€{{ "{:,.0f}".format(orcamento) }}</strong>, estas são as melhores promessas encontradas:</p>
+    
+    {% if jogadores %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Idade</th>
+                    <th>Clube</th>
+                    <th>Overall</th>
+                    <th>Potencial</th>
+                    <th>Valor (€)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for jogador in jogadores %}
+                <tr>
+                    <td>{{ jogador.name }}</td>
+                    <td>{{ jogador.age }}</td>
+                    <td>{{ jogador.club_name }}</td>
+                    <td>{{ jogador.overall_rating }}</td>
+                    <td>{{ jogador.potential }}</td>
+                    <td>€{{ "{:,.0f}".format(jogador.value) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p><strong>Nenhum jogador encontrado com esses critérios.</strong> Tente aumentar o orçamento ou diminuir o potencial mínimo.</p>
+    {% endif %}
+    
+    <a href="/">Fazer Nova Busca</a>
+</body>
+</html>
