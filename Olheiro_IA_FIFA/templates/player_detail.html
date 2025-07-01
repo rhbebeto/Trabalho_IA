@@ -18,6 +18,11 @@
         .stat-name { color: #555; }
         .stat-value { font-weight: bold; color: #333; }
         a.back-button { display: inline-block; margin-top: 20px; text-decoration: none; background-color: #6c757d; color: white; padding: 10px 15px; border-radius: 5px; }
+        .simulator { margin-top: 30px; padding: 20px; background-color: #e9ecef; border-radius: 8px; text-align: center; border: 1px solid #ddd;}
+        .simulator h3 { margin-top: 0; color: #17a2b8;}
+        .simulator select, .simulator button { font-size: 16px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin: 0 10px; }
+        .simulator button { background-color: #17a2b8; color: white; cursor: pointer; }
+        #realism-result { margin-top: 20px; font-size: 24px; font-weight: bold; min-height: 30px; }
     </style>
 </head>
 <body>
@@ -27,22 +32,77 @@
             <div class="header-info">
                 <h1>{{ player.name }}</h1>
                 <p>
-                    {% if player.club_logo and 'http' in (player.club_logo | string) %}
-                        <img src="{{ player.club_logo }}" class="logo">
-                    {% endif %}
+                    {% if player.club_logo and 'http' in (player.club_logo | string) %}<img src="{{ player.club_logo }}" class="logo">{% endif %}
                     {{ player.club_name or 'Passe Livre' }}
                 </p>
                 <p>
-                    {% if player.country_flag and 'http' in (player.country_flag | string) %}
-                     <img src="{{ player.country_flag }}" class="logo">
-                    {% endif %}
+                    {% if player.country_flag and 'http' in (player.country_flag | string) %}<img src="{{ player.country_flag }}" class="logo">{% endif %}
                     {{ player.country_name }} | {{ player.age }} anos | {{ player.positions }}
                 </p>
                 <p><strong>Overall: {{ player.overall_rating }} | Potencial: {{ player.potential }}</strong></p>
                 <p>Valor: €{{ "{:,.0f}".format(player.value) }} | Salário: €{{ "{:,.0f}".format(player.wage) }}</p>
             </div>
         </div>
+        <div class="stats-grid">
+            </div>
+
+        <hr style="margin-top: 30px;">
+
+        <div class="simulator">
+            <h3>Simulador de Transferência "E se...?"</h3>
+            <p>Selecione um clube para ver o realismo desta transferência.</p>
+            <select id="target-club">
+                <option value="">Selecione um clube...</option>
+                {% for clube in clubes %}
+                <option value="{{ clube }}">{{ clube }}</option>
+                {% endfor %}
+            </select>
+            <button id="calculate-btn">Analisar Realismo</button>
+            <div id="realism-result">
+                </div>
+        </div>
+        
         <a href="javascript:history.back()" class="back-button">Voltar para a Busca</a>
     </div>
+
+    <script>
+        document.getElementById('calculate-btn').addEventListener('click', function() {
+            const selectedClub = document.getElementById('target-club').value;
+            const playerId = {{ player.player_id }};
+            const resultDiv = document.getElementById('realism-result');
+
+            if (!selectedClub) {
+                resultDiv.innerHTML = '<span style="color: red;">Por favor, selecione um clube.</span>';
+                return;
+            }
+
+            resultDiv.innerHTML = 'Calculando...';
+
+            // Comunicação com o backend (Flask) em segundo plano
+            fetch('/calculate_realism', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    player_id: playerId,
+                    target_club_name: selectedClub
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.innerHTML = `<span style="color: red;">${data.error}</span>`;
+                } else {
+                    // Exibe o resultado na tela
+                    resultDiv.innerHTML = `Nota de Realismo: <span style="color: #007bff;">${data.realism_score} / 10</span>`;
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                resultDiv.innerHTML = '<span style="color: red;">Ocorreu um erro no servidor.</span>';
+            });
+        });
+    </script>
 </body>
 </html>
