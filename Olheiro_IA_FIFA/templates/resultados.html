@@ -4,38 +4,58 @@
     <meta charset="UTF-8">
     <title>Resultados da Busca</title>
      <style>
-        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; background-color: #f4f4f9; color: #333; }
+        body { font-family: sans-serif; max-width: 950px; margin: auto; padding: 20px; background-color: #f4f4f9; color: #333; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; }
         th { background-color: #007bff; color: white; }
+        th a { color: white; text-decoration: none; display: block; }
         tr:nth-child(even) { background-color: #f2f2f2; }
-        tr:hover { background-color: #ddd; }
-        a { display: inline-block; margin-top: 20px; text-decoration: none; background-color: #28a745; color: white; padding: 10px 15px; border-radius: 5px; }
-        a:hover { background-color: #218838; }
-    </style>
+        tr:hover { background-color: #e9e9e9; }
+        img.player-face { width: 50px; height: 50px; border-radius: 50%; }
+        img.logo { width: 25px; height: 25px; }
+        .pagination { margin-top: 20px; text-align: center; }
+        .pagination a { margin: 0 5px; text-decoration: none; padding: 8px 12px; border: 1px solid #ddd; color: #007bff; }
+        .pagination a.active { background-color: #007bff; color: white; border-color: #007bff; }
+        .pagination a.disabled { color: #ccc; pointer-events: none; background-color: #f8f9fa; }
+        a.home-button { display: inline-block; margin-top: 20px; text-decoration: none; background-color: #6c757d; color: white; padding: 10px 15px; border-radius: 5px; }
+        a.home-button:hover { background-color: #5a6268; }
+     </style>
 </head>
 <body>
     <h1>✔️ Resultados Encontrados</h1>
-    <p>Com um orçamento de até <strong>€{{ "{:,.0f}".format(orcamento) }}</strong>, estas são as melhores promessas encontradas:</p>
     
     {% if jogadores %}
         <table>
             <thead>
                 <tr>
-                    <th>Nome</th>
-                    <th>Idade</th>
+                    <th>Foto</th>
+                    <th><a href="{{ url_for('buscar', sort_by='name', sort_order='asc' if sort_by != 'name' or sort_order == 'desc' else 'desc') }}">Nome</a></th>
+                    <th><a href="{{ url_for('buscar', sort_by='age', sort_order='asc' if sort_by != 'age' or sort_order == 'desc' else 'desc') }}">Idade</a></th>
                     <th>Clube</th>
-                    <th>Overall</th>
-                    <th>Potencial</th>
-                    <th>Valor (€)</th>
+                    <th><a href="{{ url_for('buscar', sort_by='overall_rating', sort_order='desc' if sort_by != 'overall_rating' or sort_order == 'asc' else 'asc') }}">Overall</a></th>
+                    <th><a href="{{ url_for('buscar', sort_by='potential', sort_order='desc' if sort_by != 'potential' or sort_order == 'asc' else 'asc') }}">Potencial</a></th>
+                    <th><a href="{{ url_for('buscar', sort_by='value', sort_order='asc' if sort_by != 'value' or sort_order == 'desc' else 'desc') }}">Valor (€)</a></th>
                 </tr>
             </thead>
             <tbody>
                 {% for jogador in jogadores %}
                 <tr>
-                    <td>{{ jogador.name }}</td>
+                    <td><img src="{{ jogador.image }}" class="player-face"></td>
+                    <td>
+                        <a href="{{ url_for('player_detail', player_id=jogador.player_id) }}">{{ jogador.name }}</a>
+                        <br>
+                        {% if jogador.country_flag and 'http' in (jogador.country_flag | string) %}
+                            <img src="{{ jogador.country_flag }}" class="logo" title="{{ jogador.country_name }}">
+                        {% endif %}
+                    </td>
                     <td>{{ jogador.age }}</td>
-                    <td>{{ jogador.club_name }}</td>
+                    <td>
+                        {% if jogador.club_name and jogador.club_logo and 'http' in (jogador.club_logo | string) %}
+                            <img src="{{ jogador.club_logo }}" class="logo" title="{{ jogador.club_name }}">
+                        {% else %}
+                            Passe Livre
+                        {% endif %}
+                    </td>
                     <td>{{ jogador.overall_rating }}</td>
                     <td>{{ jogador.potential }}</td>
                     <td>€{{ "{:,.0f}".format(jogador.value) }}</td>
@@ -43,10 +63,24 @@
                 {% endfor %}
             </tbody>
         </table>
+        
+        <div class="pagination">
+            <a href="{{ url_for('buscar', page=page-1, sort_by=sort_by, sort_order=sort_order) }}" class="{{ 'disabled' if page <= 1 else '' }}">Anterior</a>
+            
+            {% for p in range(1, total_pages + 1) %}
+                {% if p >= page - 2 and p <= page + 2 %}
+                    <a href="{{ url_for('buscar', page=p, sort_by=sort_by, sort_order=sort_order) }}" class="{{ 'active' if p == page else '' }}">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+
+            <a href="{{ url_for('buscar', page=page+1, sort_by=sort_by, sort_order=sort_order) }}" class="{{ 'disabled' if page >= total_pages else '' }}">Próxima</a>
+        </div>
+
     {% else %}
-        <p><strong>Nenhum jogador encontrado com esses critérios.</strong> Tente aumentar o orçamento ou diminuir o potencial mínimo.</p>
+        <p><strong>Nenhum jogador encontrado com esses critérios.</strong> Tente usar filtros menos restritivos.</p>
     {% endif %}
     
-    <a href="/">Fazer Nova Busca</a>
+    <br><br>
+    <a href="/" class="home-button">Fazer Nova Busca</a>
 </body>
 </html>

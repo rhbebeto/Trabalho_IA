@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes de {{ player.name }}</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f9; color: #333; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .header { display: flex; align-items: center; gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+        .header img.player-face { width: 120px; height: 120px; border-radius: 50%; }
+        .header-info h1 { margin: 0; color: #0056b3; }
+        .header-info p { margin: 5px 0; font-size: 18px; }
+        .header-info img.logo { width: 30px; vertical-align: middle; margin-right: 10px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .stats-category { background-color: #f9f9f9; padding: 15px; border-radius: 5px; }
+        .stats-category h3 { color: #007bff; margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .stat { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .stat-name { color: #555; }
+        .stat-value { font-weight: bold; color: #333; }
+        a.back-button { display: inline-block; margin-top: 20px; text-decoration: none; background-color: #6c757d; color: white; padding: 10px 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ player.image }}" class="player-face">
+            <div class="header-info">
+                <h1>{{ player.name }}</h1>
+                <p>
+                    {% if player.club_logo and 'http' in (player.club_logo | string) %}
+                        <img src="{{ player.club_logo }}" class="logo">
+                    {% endif %}
+                    {{ player.club_name or 'Passe Livre' }}
+                </p>
+                <p>
+                    {% if player.country_flag and 'http' in (player.country_flag | string) %}
+                     <img src="{{ player.country_flag }}" class="logo">
+                    {% endif %}
+                    {{ player.country_name }} | {{ player.age }} anos | {{ player.positions }}
+                </p>
+                <p><strong>Overall: {{ player.overall_rating }} | Potencial: {{ player.potential }}</strong></p>
+                <p>Valor: €{{ "{:,.0f}".format(player.value) }} | Salário: €{{ "{:,.0f}".format(player.wage) }}</p>
+            </div>
+        </div>
+        <a href="javascript:history.back()" class="back-button">Voltar para a Busca</a>
+    </div>
+</body>
+</html>
