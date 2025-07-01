@@ -1,0 +1,6 @@
+# Ignorar datasets e arquivos de modelo
+*.csv
+*.joblib
+
+# Ignorar arquivos de cache do Python
+__pycache__/
