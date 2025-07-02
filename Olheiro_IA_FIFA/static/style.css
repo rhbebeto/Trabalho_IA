@@ -107,7 +107,7 @@ th {
 th a { color: #121212; text-decoration: none; display: block; }
 tr:nth-child(even) { background-color: #2a2a2a; }
 tr:hover { background-color: #333; }
-img.player-face { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #00ff99; }
+img.player-face { width: 150px; height: 150px; border-radius: 50%; border: 2px solid #00ff99; }
 img.logo { width: 25px; height: 25px; }
 
 
@@ -151,4 +151,32 @@ td a:visited {
 td a:hover {
     text-decoration: underline; /* Adiciona um sublinhado só quando passa o mouse */
     color: #f0f0f0;
+}
+
+/* --- Estilo para os Botões de Busca Rápida --- */
+.preset-searches {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+}
+.preset-btn {
+    background-color: #444;
+    color: #e0e0e0;
+    border: 1px solid #666;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out;
+}
+.preset-btn:hover {
+    background-color: #28a745;
+    color: #ffffff;
+    border-color: #28a745;
+    transform: translateY(-2px);
 }

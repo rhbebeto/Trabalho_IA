@@ -42,53 +42,55 @@
         </div>
     </div>
 
-<script>
-    document.getElementById('calculate-btn').addEventListener('click', function() {
-        const selectedClub = document.getElementById('target-club').value;
-        const playerId = {{ player.player_id }};
-        const resultDiv = document.getElementById('realism-result');
+    <!-- SCRIPT CORRIGIDO (APENAS UMA TAG <script>) -->
+    <script>
+        document.getElementById('calculate-btn').addEventListener('click', function() {
+            const selectedClub = document.getElementById('target-club').value;
+            const playerId = {{ player.player_id }};
+            const resultDiv = document.getElementById('realism-result');
 
-        if (!selectedClub) {
-            resultDiv.innerHTML = '<span style="color: red;">Por favor, selecione um clube.</span>';
-            return;
-        }
-        resultDiv.innerHTML = 'Analisando...';
-
-        fetch('/calculate_realism', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ player_id: playerId, target_club_name: selectedClub })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Dados recebidos da IA:', data); // Verifique o console no navegador (F12)
-            if (data.error) {
-                resultDiv.innerHTML = `<span style="color: red;">${data.error}</span>`;
-            } else {
-                let breakdownHtml = '<ul>';
-                for (const [key, value] of Object.entries(data.breakdown)) {
-                    breakdownHtml += `<li><strong>${key}:</strong> ${value} / 10</li>`;
-                }
-                breakdownHtml += '</ul>';
-
-                // A linha abaixo é responsável por mostrar o comentário
-                resultDiv.innerHTML = `
-                    <div style="font-size: 28px;">Nota de Realismo Final: <span style="color: #28a745;">${data.realism_score} / 10</span></div>
-                    <p style="font-style: italic; color: #e0e0e0; margin-top: 15px; font-size: 18px; border: 1px solid #444; padding: 10px; border-radius: 5px;">
-                        <strong>Análise da IA:</strong> "${data.comment}"
-                    </p>
-                    <div style="font-size: 14px; color: #bbb; margin-top: 10px;">
-                        <p><strong>Diagnóstico dos Fatores:</strong></p>
-                        ${breakdownHtml}
-                    </div>
-                `;
+            if (!selectedClub) {
+                resultDiv.innerHTML = '<span style="color: red;">Por favor, selecione um clube.</span>';
+                return;
             }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            resultDiv.innerHTML = '<span style="color: red;">Ocorreu um erro no servidor.</span>';
+
+            resultDiv.innerHTML = '<div class="thinking-container"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+
+            fetch('/calculate_realism', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ player_id: playerId, target_club_name: selectedClub })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Dados recebidos da IA:', data);
+                if (data.error) {
+                    resultDiv.innerHTML = `<span style="color: red;">${data.error}</span>`;
+                } else {
+                    let breakdownHtml = '<ul>';
+                    for (const [key, value] of Object.entries(data.breakdown)) {
+                        breakdownHtml += `<li><strong>${key}:</strong> ${value} / 10</li>`;
+                    }
+                    breakdownHtml += '</ul>';
+
+                    resultDiv.innerHTML = `
+                        <div class="score" style="font-size: 28px; font-weight: bold;">Índice de Viabilidade: <span style="color: #28a745;">${data.realism_score} / 10</span></div>
+                        <div class="risk" style="font-size: 20px; font-weight: bold; margin-top: 10px;">Classificação de Risco: ${data.risk}</div>
+                        <p class="comment" style="font-style: italic; color: #e0e0e0; margin-top: 15px; font-size: 16px; border: 1px solid #444; padding: 10px; border-radius: 5px; background-color: #333;">
+                            <strong>Análise da IA:</strong> "${data.comment}"
+                        </p>
+                        <div class="breakdown" style="font-size: 14px; color: #bbb; margin-top: 15px; text-align: left;">
+                            <p><strong>Diagnóstico dos Fatores:</strong></p>
+                            ${breakdownHtml}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                resultDiv.innerHTML = '<span style="color: red;">Ocorreu um erro no servidor.</span>';
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>
