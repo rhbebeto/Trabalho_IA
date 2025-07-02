@@ -48,7 +48,7 @@ colunas_essenciais = ['name', 'age', 'overall_rating', 'potential', 'value', 'wa
 df.dropna(subset=colunas_essenciais, inplace=True)
 df['positions'] = df['positions'].astype(str)
 
-# --- DEFINIÇÃO DAS LISTAS GLOBAIS (AGORA NO LUGAR CERTO) ---
+# --- DEFINIÇÃO DAS LISTAS GLOBAIS ---
 POSICOES_UNICAS = sorted(list(set(','.join(df['positions'].dropna().unique()).split(','))))
 PAISES_UNICOS = sorted(df['country_name'].dropna().unique())
 LIGAS_UNICAS = sorted(df['club_league_name'].dropna().unique())
@@ -86,7 +86,6 @@ def buscar():
     sort_by = request.args.get('sort_by', 'overall_rating')
     sort_order = request.args.get('sort_order', 'desc')
     
-    # Coleta dos Filtros
     nome_jogador = filters.get('nome_jogador', '').strip()
     idade_min = int(filters.get('idade_min') or 0)
     idade_max = int(filters.get('idade_max') or 50)
@@ -143,7 +142,7 @@ def player_detail(player_id):
             player_data[col] = int(player_data[col])
     return render_template('player_detail.html', player=player_data.to_dict(), clubes=CLUBES_UNICOS)
 
-# --- ROTA DE CÁLCULO DE REALISMO v2.1 (RECALIBRADA) ---
+# --- ROTA DE CÁLCULO DE REALISMO v2.3 (CALIBRAGEM FINAL) ---
 @app.route('/calculate_realism', methods=['POST'])
 def calculate_realism():
     data = request.get_json()
@@ -158,55 +157,56 @@ def calculate_realism():
 
     target_club_data = target_club_series.iloc[0]
 
-    # --- INÍCIO DO MOTOR DE REALISMO v2.1 ---
+    # --- INÍCIO DO MOTOR DE REALISMO v2.3 ---
     
-    # Fator 1: Prestígio (Fórmula SUAVIZADA)
     prestige_diff = player_data['overall_rating'] - target_club_data['club_rating']
-    # AJUSTE: Divisor aumentado de 2.0 para 3.0 e expoente reduzido de 1.5 para 1.3
-    penalty = (np.clip(prestige_diff, 0, 30) / 3.0) ** 1.3
-    nota_prestigio = np.clip(10 - penalty, 0, 10)
+    if prestige_diff > 1:
+        penalty = (prestige_diff / 4.0) ** 1.5
+        nota_prestigio = np.clip(10 - penalty, 0, 10)
+    else:
+        bonus = abs(prestige_diff) / 5.0
+        nota_prestigio = np.clip(8.5 + bonus, 0, 10)
 
-    # Fator 2: Financeiro (Fórmula RECALIBRADA)
     player_value = player_data['value']
     league_name = target_club_data['club_league_name']
     financial_power = LEAGUE_FINANCIAL_POWER.get(league_name, 5)
-    # AJUSTE: Constante de multiplicação diminuída de 5M para 3.5M para aumentar o impacto do valor
-    nota_financeira = np.clip(10 - (player_value / (financial_power * 3500000)), 0, 10)
+    nota_financeira = np.clip(10 - (player_value / (financial_power * 7000000)), 0, 10)
     
-    # Fator 3: Potencial vs. Idade (Lógica mantida, pois está boa)
     potential_gap = player_data['potential'] - player_data['overall_rating']
     age_multiplier = max(0, (30 - player_data['age']) / 12) 
     nota_potencial = np.clip(potential_gap / 1.5, 0, 10) * age_multiplier
 
-    # Fator 4: Rivalidade (Lógica mantida)
     fator_rivalidade = 1.0
     player_club = player_data['club_name']
     if player_club in RIVALRIES and target_club_name in RIVALRIES.get(player_club, []):
-        fator_rivalidade = 0.1
+        fator_rivalidade = 0.05
 
-    # Fator 5: Necessidade do Elenco (Penalidade REDUZIDA)
     fator_necessidade = 1.0
     player_position = player_data['positions'].split(',')[0]
-    jogadores_do_clube_alvo_na_posicao = df[
-        (df['club_name'] == target_club_name) & 
-        (df['positions'].str.contains(player_position)) &
-        (df['overall_rating'] >= player_data['overall_rating'])
-    ]
+    jogadores_do_clube_alvo_na_posicao = df[(df['club_name'] == target_club_name) & (df['positions'].str.contains(player_position)) & (df['overall_rating'] >= player_data['overall_rating'])]
     if not jogadores_do_clube_alvo_na_posicao.empty:
-        fator_necessidade = 0.85 # AJUSTE: Penalidade agora é de 15% (antes era 30%)
+        fator_necessidade = 0.85
 
-    # --- CÁLCULO FINAL ---
-    nota_base = (nota_prestigio * 0.6) + (nota_financeira * 0.3) + (nota_potencial * 0.1)
+    nota_base = (nota_prestigio * 0.55) + (nota_financeira * 0.35) + (nota_potencial * 0.1)
     nota_final = nota_base * fator_rivalidade * fator_necessidade
     
+    score = round(nota_final, 1)
+    comment = ""
+    if score >= 9.0: comment = "Combinação perfeita! Uma transferência dos sonhos que faz todo sentido para o clube."
+    elif score >= 7.5: comment = "Movimento muito realista e estratégico. Seria uma contratação inteligente."
+    elif score >= 5.0: comment = "Transferência desafiadora, mas possível com o investimento certo e um bom projeto."
+    elif score >= 2.5: comment = "Altamente improvável. Exigiria um esforço financeiro e de projeto gigantesco."
+    else: comment = "Praticamente impossível nos padrões atuais do futebol."
+    if fator_rivalidade < 1.0: comment = "Transferência quase impossível devido à grande rivalidade entre os clubes."
+
     return jsonify({
-        'realism_score': round(nota_final, 1),
+        'realism_score': score,
         'breakdown': {
             'Prestígio': round(nota_prestigio, 1),
             'Financeiro': round(nota_financeira, 1),
             'Potencial (x Idade)': round(nota_potencial, 1)
         },
-        'comment': f"Penalidade por Rivalidade: -{int((1-fator_rivalidade)*100)}%, Penalidade por Necessidade: -{int((1-fator_necessidade)*100)}%"
+        'comment': comment
     })
 
 if __name__ == '__main__':

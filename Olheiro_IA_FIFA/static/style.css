@@ -1,0 +1,154 @@
+/* Importa uma fonte moderna do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+/* Esquema de cores principal - Tema Escuro */
+body { 
+    font-family: 'Roboto', sans-serif; 
+    background-color: #121212; /* Fundo escuro, quase preto */
+    color: #e0e0e0; /* Texto principal mais suave */
+    padding: 20px; 
+}
+
+/* Container principal com um tom de cinza escuro */
+.container { 
+    max-width: 1200px; 
+    margin: auto; 
+    background: #1e1e1e; /* Cor de fundo do conteúdo */
+    padding: 25px; 
+    border-radius: 8px; 
+    border: 1px solid #333;
+}
+
+
+/* Títulos principais com o verde vibrante */
+h1 { 
+    color: #00ff99; /* Verde "neon" */
+    text-align: center; 
+    text-shadow: 0 0 5px rgba(0, 255, 153, 0.5);
+}
+
+/* Formulário e inputs */
+form { 
+    background: #2a2a2a; 
+    padding: 25px; 
+    border-radius: 8px; 
+    border: 1px solid #444;
+}
+.form-section h3 {
+    color: #00ff99;
+    border-bottom: 2px solid #00ff99;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+label { 
+    font-weight: bold; 
+    margin-bottom: 5px; 
+    font-size: 14px; 
+    color: #bbb;
+}
+input, select { 
+    background-color: #333;
+    color: #e0e0e0;
+    padding: 10px; 
+    font-size: 16px; 
+    border-radius: 5px; 
+    border: 1px solid #555;
+}
+input:focus, select:focus {
+    outline: none;
+    border-color: #00ff99;
+}
+
+/* Botões */
+button { 
+    background-color: #00ff99; 
+    color: #121212; /* Texto escuro para contraste */
+    cursor: pointer; 
+    border: none; 
+    font-weight: bold; 
+    padding: 12px; 
+    font-size: 18px;
+    transition: transform 0.2s;
+}
+button:hover { 
+    background-color: #00e68a;
+    transform: scale(1.02);
+}
+/* DEPOIS */
+a.back-button, a.home-button {
+    display: inline-block; 
+    margin-bottom: 20px; /* <--- MUDANÇA AQUI */
+    text-decoration: none; 
+    background-color: #6c757d; 
+    color: white; 
+    padding: 10px 15px; 
+    border-radius: 5px;
+}
+a.back-button:hover, a.home-button:hover { background-color: #5a6268; }
+
+
+/* Tabela de Resultados */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+    box-shadow: none;
+}
+th, td { 
+    border: 1px solid #444; 
+    padding: 12px; 
+    text-align: center; 
+    vertical-align: middle; 
+}
+th { 
+    background-color: #00ff99; 
+    color: #121212; /* Texto escuro */
+}
+th a { color: #121212; text-decoration: none; display: block; }
+tr:nth-child(even) { background-color: #2a2a2a; }
+tr:hover { background-color: #333; }
+img.player-face { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #00ff99; }
+img.logo { width: 25px; height: 25px; }
+
+
+/* Paginação */
+.pagination a { 
+    border: 1px solid #444; 
+    color: #00ff00; 
+}
+.pagination a.active { 
+    background-color: #00ff99; 
+    color: #121212; 
+    border-color: #00ff99; 
+}
+.pagination a.disabled { 
+    color: #555; 
+    pointer-events: none; 
+    background-color: #2a2a2a; 
+}
+
+/* Página de Detalhes */
+.header { border-bottom: 2px solid #333; }
+.header-info h1 { color: #00ff99; }
+.stats-category { background-color: #2a2a2a; }
+.stats-category h3 { color: #00ff99; border-bottom: 1px solid #444; }
+.stat-name { color: #bbb; }
+.simulator { background-color: #2a2a2a; border: 1px solid #444; }
+.simulator h3 { color: #00ff99; }
+.simulator button { background-color: #00ff99; }
+
+/* --- Ajuste para Cor dos Links na Tabela --- */
+td a {
+    color: #ffffff; /* Cor branca */
+    font-weight: bold;
+    text-decoration: none; /* Remove o sublinhado */
+}
+
+td a:visited {
+    color: #ffffff; /* Garante que continue branco mesmo depois de visitado */
+}
+
+td a:hover {
+    text-decoration: underline; /* Adiciona um sublinhado só quando passa o mouse */
+    color: #f0f0f0;
+}
