@@ -28,14 +28,15 @@ caminho_dados_originais = os.path.join(caminho_do_script, 'FIFA25_official_data.
 df = pd.read_csv(caminho_dados_originais, low_memory=False)
 
 print("Limpando e preparando os dados...")
+# APLICA A CONVERSÃO ANTES DE QUALQUER CÁLCULO
 df['value'] = df['value'].apply(converter_valor_para_numero)
 df['wage'] = df['wage'].apply(converter_valor_para_numero)
 
+# CRIA O DICIONÁRIO DE MÉDIA SALARIAL DEPOIS DA CONVERSÃO
+LEAGUE_AVG_WAGE = df.groupby('club_league_name')['wage'].mean().to_dict()
+
 colunas_para_converter = [
-    'weak_foot', 'skill_moves', 'club_contract_valid_until', 'overall_rating', 'potential', 'player_id', 'finishing', 
-    'heading_accuracy', 'volleys', 'dribbling', 'curve', 'fk_accuracy', 'ball_control', 'acceleration', 
-    'sprint_speed', 'agility', 'balance', 'shot_power', 'jumping', 'stamina', 'strength', 'aggression', 
-    'interceptions', 'positioning', 'vision', 'penalties', 'defensive_awareness', 'standing_tackle', 'sliding_tackle', 'club_rating'
+    'weak_foot', 'skill_moves', 'club_contract_valid_until', 'overall_rating', 'potential', 'player_id', 'finishing', 'heading_accuracy', 'volleys', 'dribbling', 'curve', 'fk_accuracy', 'ball_control', 'acceleration', 'sprint_speed', 'agility', 'balance', 'shot_power', 'jumping', 'stamina', 'strength', 'aggression', 'interceptions', 'positioning', 'vision', 'penalties', 'defensive_awareness', 'standing_tackle', 'sliding_tackle', 'club_rating'
 ]
 for col in colunas_para_converter:
     if col in df.columns:
@@ -54,9 +55,8 @@ PAISES_UNICOS = sorted(df['country_name'].dropna().unique())
 LIGAS_UNICAS = sorted(df['club_league_name'].dropna().unique())
 CLUBES_UNICOS = sorted(df['club_name'].dropna().unique())
 RIVALRIES = {
-    'Real Madrid CF': ['FC Barcelona', 'Atlético de Madrid'], 'FC Barcelona': ['Real Madrid CF', 'RCD Espanyol'],
-    'Atlético de Madrid': ['Real Madrid CF'], 'Manchester City': ['Manchester United', 'Liverpool'],
-    'Manchester United': ['Manchester City', 'Liverpool', 'Leeds United'], 'Liverpool': ['Manchester United', 'Everton', 'Manchester City'],
+    'Real Madrid CF': ['FC Barcelona', 'Atlético de Madrid'], 'FC Barcelona': ['Real Madrid CF', 'RCD Espanyol'], 'Atlético de Madrid': ['Real Madrid CF'],
+    'Manchester City': ['Manchester United', 'Liverpool'], 'Manchester United': ['Manchester City', 'Liverpool', 'Leeds United'], 'Liverpool': ['Manchester United', 'Everton', 'Manchester City'],
     'Arsenal': ['Tottenham Hotspur', 'Chelsea'], 'Tottenham Hotspur': ['Arsenal', 'Chelsea'], 'Chelsea': ['Arsenal', 'Tottenham Hotspur'],
     'Inter': ['AC Milan', 'Juventus'], 'AC Milan': ['Inter'], 'Juventus': ['Inter', 'Torino'], 'AS Roma': ['Lazio'], 'Lazio': ['AS Roma'],
     'FC Bayern München': ['Borussia Dortmund'], 'Borussia Dortmund': ['FC Bayern München', 'FC Schalke 04'],
@@ -142,7 +142,6 @@ def player_detail(player_id):
             player_data[col] = int(player_data[col])
     return render_template('player_detail.html', player=player_data.to_dict(), clubes=CLUBES_UNICOS)
 
-# --- ROTA DE CÁLCULO DE REALISMO v2.3 (CALIBRAGEM FINAL) ---
 @app.route('/calculate_realism', methods=['POST'])
 def calculate_realism():
     data = request.get_json()
@@ -157,8 +156,6 @@ def calculate_realism():
 
     target_club_data = target_club_series.iloc[0]
 
-    # --- INÍCIO DO MOTOR DE REALISMO v2.3 ---
-    
     prestige_diff = player_data['overall_rating'] - target_club_data['club_rating']
     if prestige_diff > 1:
         penalty = (prestige_diff / 4.0) ** 1.5
@@ -170,7 +167,14 @@ def calculate_realism():
     player_value = player_data['value']
     league_name = target_club_data['club_league_name']
     financial_power = LEAGUE_FINANCIAL_POWER.get(league_name, 5)
-    nota_financeira = np.clip(10 - (player_value / (financial_power * 7000000)), 0, 10)
+    nota_financeira_base = np.clip(10 - (player_value / (financial_power * 7000000)), 0, 10)
+    
+    media_salarial_liga = LEAGUE_AVG_WAGE.get(league_name, 50000)
+    if player_data['wage'] > (media_salarial_liga * 2):
+        penalidade_salario = (player_data['wage'] / media_salarial_liga) / 2
+        nota_financeira = max(0, nota_financeira_base - penalidade_salario)
+    else:
+        nota_financeira = nota_financeira_base
     
     potential_gap = player_data['potential'] - player_data['overall_rating']
     age_multiplier = max(0, (30 - player_data['age']) / 12) 
@@ -192,21 +196,31 @@ def calculate_realism():
     
     score = round(nota_final, 1)
     comment = ""
-    if score >= 9.0: comment = "Combinação perfeita! Uma transferência dos sonhos que faz todo sentido para o clube."
-    elif score >= 7.5: comment = "Movimento muito realista e estratégico. Seria uma contratação inteligente."
-    elif score >= 5.0: comment = "Transferência desafiadora, mas possível com o investimento certo e um bom projeto."
-    elif score >= 2.5: comment = "Altamente improvável. Exigiria um esforço financeiro e de projeto gigantesco."
-    else: comment = "Praticamente impossível nos padrões atuais do futebol."
-    if fator_rivalidade < 1.0: comment = "Transferência quase impossível devido à grande rivalidade entre os clubes."
+    risk_level = ""
+    if score >= 7.5:
+        comment = "Movimento muito realista e estratégico. Seria uma contratação inteligente."
+        risk_level = "✅ Viável"
+    elif score >= 5.0:
+        comment = "Transferência desafiadora, mas possível com o investimento certo e um bom projeto."
+        risk_level = "⚠️ Arriscada"
+    else:
+        comment = "Altamente improvável. Exigiria um esforço financeiro e de projeto gigantesco."
+        risk_level = "❌ Improvável"
+    if score >= 9.0:
+        comment = "Combinação perfeita! Uma transferência dos sonhos que faz todo sentido para o clube."
+    if fator_rivalidade < 1.0:
+        comment = "Transferência quase impossível devido à grande rivalidade entre os clubes."
+        risk_level = "❌ Improvável"
 
     return jsonify({
         'realism_score': score,
         'breakdown': {
             'Prestígio': round(nota_prestigio, 1),
-            'Financeiro': round(nota_financeira, 1),
+            'Financeiro (com Salário)': round(nota_financeira, 1),
             'Potencial (x Idade)': round(nota_potencial, 1)
         },
-        'comment': comment
+        'comment': comment,
+        'risk': risk_level
     })
 
 if __name__ == '__main__':
