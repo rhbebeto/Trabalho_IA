@@ -1,7 +1,6 @@
 # 🤖 Olheiro de IA - Um Centro de Scouting Profissional para EA FC
 
-**Autor:** [Seu Nome Completo]
-**Projeto para a disciplina:** [Nome da Disciplina] - [Nome da sua Faculdade]
+**Autor:** Roberto Henrique Duarte 
 
 ---
 
