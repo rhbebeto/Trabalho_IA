@@ -22,10 +22,12 @@ O projeto foi concebido para resolver um desafio central dos jogadores do Modo C
 
 **Página de Resultados com Ordenação e Paginação:**
 
-<img src="assets/image.png" alt="Imagem de exemplo" width="325">
+*<img src="assets/pesquias.png" alt="Imagem de exemplo" width="325">*
 
 **Página de Detalhes com o Simulador de Realismo da IA:**
-*<img src="assets/player.png" alt="Imagem de exemplo" width="325">*
+
+<img src="assets/image.png" alt="Imagem de exemplo" width="325">
+
 
 ---
 
