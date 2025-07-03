@@ -31,6 +31,7 @@ O projeto foi concebido para resolver um desafio central dos jogadores do Modo C
 
 ---
 
+
 ## 3. Arquitetura e Funcionalidades
 
 A aplicação foi construída com uma arquitetura robusta para garantir performance e uma experiência de usuário fluida.
