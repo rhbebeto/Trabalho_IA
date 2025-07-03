@@ -91,7 +91,7 @@ Ao final, a IA fornece não apenas uma nota, mas um **diagnóstico detalhado** e
 
 2.  **Navegue até a Pasta:**
     ```bash
-    cd Trabalho_IA
+    cd Olheiro_IA_FIFA
     ```
 
 3.  **Crie um Ambiente Virtual (Recomendado):**
