@@ -17,15 +17,15 @@ O projeto foi concebido para resolver um desafio central dos jogadores do Modo C
 
 **Página de Busca "Modo Sofifa":**
 
-<img src="Assets/home.png" alt="Imagem de exemplo" width="325">
+<img src="assets/home.png" alt="Imagem de exemplo" width="325">
 
 
 **Página de Resultados com Ordenação e Paginação:**
 
-<img src="Assets/image.png" alt="Imagem de exemplo" width="325">
+<img src="assets/image.png" alt="Imagem de exemplo" width="325">
 
 **Página de Detalhes com o Simulador de Realismo da IA:**
-*<img src="Assets/player.png" alt="Imagem de exemplo" width="325">*
+*<img src="assets/player.png" alt="Imagem de exemplo" width="325">*
 
 ---
 
